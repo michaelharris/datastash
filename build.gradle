@@ -1,0 +1,93 @@
+// Text processing application
+
+apply plugin: 'java'
+apply plugin: 'war'
+apply plugin: 'eclipse-wtp'
+apply plugin: 'jetty'
+
+group = 'net.mikeharris.datastash'
+version = '1.0'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+
+	compile group: 'org.springframework.data', name: 'spring-data-jpa', version: '1.9.0.RELEASE'
+	compile group: 'javax.persistence', name: 'javax.persistence-api', version: '2.2'
+	compile group: 'org.hibernate', name: 'hibernate-entitymanager', version: '5.1.6.Final'
+	testCompile group: 'org.apache.derby', name: 'derby', version: '10.14.1.0'
+	compile group: 'org.apache.commons', name: 'commons-dbcp2', version: '2.1.1'
+
+	
+	compile group: 'org.postgresql', name: 'postgresql', version: '42.2.0'
+	compile 'ch.qos.logback:logback-classic:1.1.3'
+	compile 'org.springframework:spring-jdbc:4.3.7.RELEASE'
+	compile 'org.springframework:spring-webmvc:4.3.7.RELEASE'
+	compile 'org.springframework:spring-context-support:4.3.7.RELEASE'
+	compile 'com.fasterxml.jackson.core:jackson-core:2.6.3'
+	compile 'com.fasterxml.jackson.core:jackson-databind:2.6.3'
+	//For testing
+	//compile 'org.apache.derby:derby:10.11.1.1'
+	
+	testCompile 'org.springframework:spring-test:4.3.7.RELEASE'
+	
+	
+	testCompile 'javax.servlet:javax.servlet-api:3.1.0'
+	testCompile group: 'junit', name: 'junit', version: '4.12'
+	testCompile 'org.hamcrest:hamcrest-all:1.3'
+	testCompile 'junit:junit:4.10'
+	testCompile 'org.mockito:mockito-core:1.9.0'
+	testCompile group: 'com.jayway.jsonpath', name: 'json-path', version: '2.4.0'
+	
+	compileOnly 'javax.servlet:javax.servlet-api:3.1.0'
+	
+	compile 'javax.servlet:jstl:1.2'
+}
+
+// Embeded Jetty for testing
+jettyRun{
+	contextPath = rootProject.name
+	httpPort = 9900
+}
+
+jettyRunWar{
+	contextPath = rootProject.name
+	httpPort = 9900
+}
+
+//Write a manifest so that the version can be picked up by the application and served at the /version endpoint
+war {
+	baseName = rootProject.name
+	 manifest {
+		  attributes('Implementation-Title': rootProject.name, 'Implementation-Version': rootProject.version, 'Implementation-Build-Time': new Date().format('yyyyMMdd.HHmmss'))
+		  writeTo("src/main/webapp/META-INF/MANIFEST.MF")
+	}
+}
+
+
+//For Eclipse IDE only
+eclipse {
+
+  wtp {
+    component {
+      
+      //define context path, default to project folder name
+      contextPath = 'datastash'
+    }
+  }
+}
+
+
+test.doFirst {
+	println "Test classpath is:- ${projectDir}"
+	sourceSets.test.runtimeClasspath.getFiles().each { file -> println "classpath file: \"" + file + "\""
+		
+	}
+}
+
